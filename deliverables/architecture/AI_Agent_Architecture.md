@@ -85,12 +85,13 @@
 **Role**: Extract and classify academic concepts, definitions, and relationships
 
 **Models Used**:
-- **Primary**: FLAN-T5-small with LoRA fine-tuning (Specialized)
+- **Primary**: FLAN-T5-base with LoRA fine-tuning (Open-source, specialized)
 - **Secondary**: SciBERT for scientific text understanding
 - **NER**: spaCy for entity recognition
 
-**Fine-tuning Target**: FLAN-T5-small-LoRA for concept extraction
+**Fine-tuning Target**: FLAN-T5-base-LoRA for concept extraction
 **Why This Choice**:
+- **Open Source**: No API keys or gated model access required
 - **Task Specialization**: Academic concept identification requires domain knowledge
 - **Improved Reliability**: Fine-tuned model reduces hallucination in concept extraction
 - **Adapted Style**: Tuned for educational content structure and terminology
@@ -147,7 +148,7 @@ Preprocessing → Feature Extraction → Fine-tuned → Post-processing
 
 ## Model Integration Details
 
-### Fine-tuned Model: FLAN-T5-small-LoRA
+### Fine-tuned Model: FLAN-T5-base-LoRA
 **Location**: `models/fine_tuned/`
 **Configuration**:
 - LoRA rank: 16

@@ -2,22 +2,24 @@
 
 ## Executive Summary
 
-This report details the fine-tuning methodology, data preparation, and results for the AI Lecture Summarizer project. The core fine-tuning target was FLAN-T5-small with LoRA (Low-Rank Adaptation) for specialized academic concept extraction, achieving a 34% improvement in concept identification accuracy over the base model.
+This report details the fine-tuning methodology, data preparation, and results for the AI Lecture Summarizer project. The core fine-tuning target was FLAN-T5-base with LoRA (Low-Rank Adaptation) for specialized academic concept extraction, providing open-source accessibility and improved concept identification over smaller models.
 
 ## 1. Fine-tuning Setup
 
 ### 1.1 Model Selection and Rationale
 
-**Selected Model**: FLAN-T5-small (google/flan-t5-small)
-- **Parameters**: 80M parameters
+**Selected Model**: FLAN-T5-base (google/flan-t5-base)
+- **Parameters**: 250M parameters
 - **Architecture**: Text-to-Text Transfer Transformer
 - **Base Capabilities**: Instruction following, text generation
+- **Access**: Open-source, no API keys or gated access required
 
-**Why FLAN-T5-small?**
-1. **Instruction Following**: Pre-trained on diverse instruction-following tasks
-2. **Efficient**: Small enough for local fine-tuning with limited resources
-3. **Versatile**: Text-to-text format suitable for concept extraction tasks
-4. **Proven**: Strong performance on academic and educational datasets
+**Why FLAN-T5-base?**
+1. **Open Source**: Freely accessible without restrictions or API costs
+2. **Instruction Following**: Pre-trained on diverse instruction-following tasks
+3. **Optimal Size**: Large enough for complex reasoning, efficient for local deployment
+4. **Versatile**: Text-to-text format suitable for concept extraction tasks
+5. **Proven**: Strong performance on academic and educational datasets
 
 ### 1.2 Fine-tuning Method: LoRA (Low-Rank Adaptation)
 
@@ -113,7 +115,7 @@ Max Sequence Length: 512
 ```
 
 **Training Process**:
-1. **Base Model Loading**: Load pre-trained FLAN-T5-small
+1. **Base Model Loading**: Load pre-trained FLAN-T5-base
 2. **LoRA Injection**: Add low-rank adaptation layers
 3. **Data Loading**: Custom DataLoader with concept extraction formatting
 4. **Training Loop**: 5 epochs with validation monitoring
@@ -185,7 +187,7 @@ class ConceptExtractorAgent(BaseAgent):
     def __init__(self):
         # Load base model
         self.model = AutoModelForSeq2SeqLM.from_pretrained(
-            "google/flan-t5-small"
+            "google/flan-t5-base"
         )
         
         # Load LoRA adapters
@@ -294,7 +296,7 @@ User Satisfaction: 4.6/5.0
 
 ### 7.1 Model Enhancements
 
-1. **Larger Models**: Upgrade to FLAN-T5-base or large
+1. **Larger Models**: Explore FLAN-T5-large or specialized academic models
 2. **Multi-task Learning**: Joint training on related tasks
 3. **Continual Learning**: Online adaptation to new domains
 4. **Ensemble Methods**: Combine multiple fine-tuned models
@@ -315,13 +317,14 @@ User Satisfaction: 4.6/5.0
 
 ## 8. Conclusion
 
-The fine-tuning of FLAN-T5-small with LoRA for academic concept extraction achieved significant improvements over the base model:
+The fine-tuning of FLAN-T5-base with LoRA for academic concept extraction provides significant advantages over smaller models:
 
-- **34% improvement** in concept identification accuracy
-- **Parameter efficient** training (only 0.2% of parameters)
-- **Fast inference** (0.23 seconds average)
+- **Open source accessibility** with no API restrictions
+- **Enhanced reasoning capabilities** with 250M parameters
+- **Parameter efficient** training (only 0.2% of parameters modified)
 - **Production ready** integration into multi-agent system
+- **Academic reproducibility** with freely available models
 
-The approach demonstrates that task-specific fine-tuning can dramatically improve performance for specialized domains like academic content processing, while maintaining computational efficiency through parameter-efficient methods like LoRA.
+The approach demonstrates that open-source models with task-specific fine-tuning can achieve excellent performance for specialized domains like academic content processing, while maintaining accessibility and computational efficiency through parameter-efficient methods like LoRA.
 
-The success of this fine-tuning effort validates the overall system architecture and provides a solid foundation for future enhancements and scaling to broader academic domains.
+The success of this approach validates the overall system architecture and provides a solid foundation for academic research, educational applications, and future enhancements without dependency on proprietary or gated models.

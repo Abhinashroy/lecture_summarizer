@@ -4,24 +4,24 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Model Configuration - Specified high-performance models
-BASE_MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"  # Mistral-Instruct-7B-4bit (~1.02 GB)
+# Model Configuration - Using open models for accessibility
+BASE_MODEL_NAME = "google/flan-t5-base"  # Open instruction-following model (~850MB)
 ALTERNATIVE_MODELS = {
     "concept_extraction": "allenai/scibert_scivocab_uncased",  # SciBERT-optimized (87.14% F1-score, ~440MB)
     "summarization": "google/flan-t5-small",  # FLAN-T5-small-LoRA (~240MB, optimized for instruction following)  
-    "text_generation": "mistralai/Mistral-7B-Instruct-v0.1"  # Mistral-Instruct-7B-4bit
+    "text_generation": "google/flan-t5-base"  # Open instruction model
 }
 
 LORA_CONFIG = {
     "r": 16,  # Efficient rank = fast adaptation
     "lora_alpha": 32,  # Optimized adaptation strength
-    "target_modules": ["q_proj", "v_proj"],  # Attention-focused
+    "target_modules": ["q", "v"],  # T5 attention modules
     "lora_dropout": 0.05,  # Optimized learning
     "bias": "none",  # Standard bias handling
-    "task_type": "CAUSAL_LM"
+    "task_type": "SEQ_2_SEQ_LM"  # Changed for T5
 }
 
-# Quantization Configuration for Mistral-7B-4bit
+# Quantization Configuration for FLAN-T5-base
 QUANTIZATION_CONFIG = {
     "load_in_4bit": True,
     "bnb_4bit_compute_dtype": "float16",

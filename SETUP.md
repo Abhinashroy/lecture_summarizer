@@ -41,9 +41,9 @@ Note: Large files (models, audio, cache) are excluded via .gitignore
 - **Alternative**: `faster-whisper` for even more speed
 
 ### 🧠 Text Processing & Understanding  
-- **Concept Extraction**: `mistralai/Mistral-7B-Instruct-v0.1` 4-bit quantized
-  - Efficient instruction-following for concept identification
-  - 4-bit quantization for reduced memory usage
+- **Concept Extraction**: `google/flan-t5-base` with LoRA fine-tuning
+  - Open-source sequence-to-sequence model for concept identification
+  - LoRA adapters for efficient domain-specific fine-tuning
   - Superior reasoning capabilities for academic content
 - **Academic Concepts**: `allenai/scibert_scivocab_uncased` (optimized)
   - 87.14% F1-score on scientific text extraction
@@ -66,7 +66,7 @@ Note: Large files (models, audio, cache) are excluded via .gitignore
 - **LoRA Rank**: 16 (efficient adaptation capability)
 - **LoRA Alpha**: 32 (balanced adaptation strength)
 - **Target Modules**: `["q_proj", "v_proj"]` (attention-focused)
-- **Dropout**: 0.05 (optimized learning for T5/Mistral)
+- **Dropout**: 0.05 (optimized learning for T5)
 
 ## Installation Steps
 
@@ -108,11 +108,11 @@ pip install -r requirements.txt
 **Automatic Downloads on First Run:**
 - Whisper Large-v3-Turbo: ~1.55GB (5.4x faster, 7.7% WER, 1300x real-time)
 - MPNet embeddings: ~420MB (best semantic understanding)
-- Mistral-Instruct-7B-4bit: ~1.02GB (efficient instruction following)
+- FLAN-T5-base: ~990MB (open-source sequence-to-sequence model)
 - SciBERT-optimized: ~440MB (87.14% F1-score on scientific extraction)
 - T5-small-LoRA: ~240MB (4x faster than BART, LoRA fine-tuned)
 
-**Total Model Storage**: ~3.7GB (all models combined)
+**Total Model Storage**: ~3.6GB (all models combined)
 
 ### 5. Optional: Set Up Environment Variables
 ```bash
@@ -151,7 +151,7 @@ python main.py --web
 # Expected downloads:
 # - Whisper Large-v3-Turbo: ~1.55GB (2-4 minutes)
 # - MPNet embeddings: ~420MB (1-2 minutes)  
-# - Mistral-7B-4bit: ~1.02GB (2-3 minutes)
+# - FLAN-T5-base: ~990MB (2-3 minutes)
 # - Additional models: ~900MB (2-4 minutes)
 # Total: 7-13 minutes depending on internet speed
 ```
@@ -224,14 +224,14 @@ Edit `config.py` before first run:
 ```python
 # Reduced memory configuration
 WHISPER_MODEL = "medium"  # Instead of "large-v3-turbo" 
-BASE_MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"  # 4-bit quantized for efficiency
+BASE_MODEL_NAME = "google/flan-t5-base"  # Open-source T5 model for efficiency
 ```
 
 #### For Maximum Quality (16GB+ RAM)
 ```python
 # High-performance configuration (default)
 WHISPER_MODEL = "large-v3-turbo"
-BASE_MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"
+BASE_MODEL_NAME = "google/flan-t5-base"
 EMBEDDING_MODEL = "sentence-transformers/all-mpnet-base-v2"
 ```
 
@@ -316,7 +316,7 @@ python main.py --train
 
 **Enhanced Training Features:**
 - LoRA fine-tuning with rank 16 for ultra-efficient adaptation
-- Academic domain specialization with Mistral reasoning
+- Academic domain specialization with FLAN-T5 reasoning
 - Improved concept extraction patterns with SciBERT F1-score 87.14%
 - Training completes in 3-5 minutes with superior results
 
@@ -343,14 +343,14 @@ python main.py --web  # SciBERT + SPECTER2 for academic content
 
 ### 🏗️ Multi-Agent Design
 1. **Audio Transcriber**: Whisper Large-v3-Turbo for ultra-fast, accurate speech-to-text
-2. **Concept Extractor**: LoRA-tuned Mistral-7B + SciBERT optimized hybrid
+2. **Concept Extractor**: LoRA-tuned FLAN-T5-base + SciBERT optimized hybrid
 3. **Summary Generator**: T5-small with LoRA for enhanced academic templates
 4. **RAG System**: MPNet embeddings + FAISS vector database
 5. **Orchestrator**: Coordinates all agents with quality gates
 
 ### 🔄 Processing Pipeline
 ```
-Audio Input → Whisper Large-v3-Turbo → Concept Extraction (Mistral+SciBERT) 
+Audio Input → Whisper Large-v3-Turbo → Concept Extraction (FLAN-T5+SciBERT) 
 → RAG Context Retrieval → T5-LoRA Summarization → Ultra-Structured Output
 ```
 
@@ -370,7 +370,7 @@ For systems with limited RAM, edit `config.py`:
 ```python
 # Reduced memory configuration
 WHISPER_MODEL = "small"  # Instead of "medium" (saves ~1GB)
-BASE_MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"  # 4-bit quantized for efficiency  
+BASE_MODEL_NAME = "google/flan-t5-base"  # Open-source T5 model for efficiency  
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"  # Smaller embeddings
 ```
 
@@ -402,11 +402,11 @@ WHISPER_MODEL = "large-v3-turbo"  # Options: tiny, base, small, medium, large-v3
 AUDIO_SAMPLE_RATE = 16000
 
 # Text Processing  
-BASE_MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"  # Advanced reasoning model
+BASE_MODEL_NAME = "google/flan-t5-base"  # Open-source reasoning model
 ALTERNATIVE_MODELS = {
     "concept_extraction": "allenai/scibert_scivocab_uncased",
     "summarization": "google/flan-t5-small", 
-    "text_generation": "mistralai/Mistral-7B-Instruct-v0.1"
+    "text_generation": "google/flan-t5-base"
 }
 
 # Embeddings & RAG
@@ -450,7 +450,7 @@ TARGET_LATENCY = 2.0        # Ultra-fast processing goal
 ## Advanced Features
 
 ### 🧠 Hybrid Concept Extraction
-- **Fine-tuned Model**: Domain-adapted Mistral-7B-4bit with LoRA
+- **Fine-tuned Model**: Domain-adapted FLAN-T5-base with LoRA
 - **Rule-based Fallback**: Academic pattern matching
 - **SciBERT Integration**: Optimized academic terminology (87.14% F1-score)
 - **Quality Gates**: Ensures minimum concept extraction standards
@@ -588,7 +588,7 @@ python main.py --web          # Retry download
 # Issue: Out of memory during model loading
 # Solution: Edit config.py BEFORE first run:
 WHISPER_MODEL = "medium"     # Instead of "large-v3-turbo"
-BASE_MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"  # 4-bit quantized for efficiency
+BASE_MODEL_NAME = "google/flan-t5-base"  # Open-source model for efficiency
 ```
 
 **4. Slow Processing**
@@ -674,6 +674,6 @@ Optimal:  8GB RAM, GPU, 10GB storage
 | Model | Speed Boost | Quality | Memory |
 |-------|-------------|---------|---------|
 | **Whisper Large-v3-Turbo** | 5.4x faster | 7.7% WER | 1.55GB |
-| **Mistral-7B-4bit** | 3x faster | High accuracy | 1.02GB |
+| **FLAN-T5-base** | Open-source | High accuracy | 990MB |
 | **SciBERT-optimized** | 2x faster | 87.14% F1 | 440MB |
 | **T5-small-LoRA** | 4x faster | Enhanced | 240MB |

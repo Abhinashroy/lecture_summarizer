@@ -1,10 +1,10 @@
 # AI Lecture Summarizer
 
-A sophisticated multi-agent AI system that transforms audio lectures into comprehensive study materials using fine-tuned language models, retrieval-augmented generation (RAG), and real-time web interface.
+> **🤖 AI Agent Prototype** - A sophisticated multi-agent AI system that transforms audio lectures into comprehensive study materials using fine-tuned language models, retrieval-augmented generation (RAG), and real-time web interface.
 
 ## 🎯 Overview
 
-This system processes audio lectures through a pipeline of specialized AI agents to generate:
+This **AI agent prototype** processes audio lectures through a pipeline of specialized AI agents to generate:
 - **Accurate transcriptions** using OpenAI Whisper
 - **Key concept extraction** with fine-tuned FLAN-T5 models
 - **Structured summaries** in multiple formats
@@ -35,14 +35,24 @@ Audio Input → Audio Transcriber → Concept Extractor → Summary Generator �
 5. **RAG System**: Vector-based knowledge retrieval and augmentation
 6. **Web Interface**: Flask-SocketIO with real-time progress updates
 
-## 🚀 Quick Start
+## ✨ Key Features
+
+- **🤖 Multi-Agent Architecture**: Specialized AI agents for different processing stages
+- **📂 Open Source Models**: Uses Google FLAN-T5-base (no API keys or gated model access required)
+- **🎓 Academic Focus**: Optimized for educational content and scientific terminology
+- **⚡ Efficient Fine-tuning**: LoRA adapters for domain-specific customization
+- **� Real-time Processing**: Live progress updates through WebSocket interface
+- **📊 Evaluation Metrics**: Built-in assessment tools for quality measurement
+- **🛡️ Robust Error Handling**: Fallback mechanisms and quality gates
+
+## �🚀 Quick Start
 
 ### Prerequisites
 
 - **Python 3.10+** (developed and tested with Python 3.13.7)
 - **8GB+ RAM** recommended for model processing
 - **GPU optional** but recommended for faster processing
-- **Internet connection** for model downloads and API access
+- **Internet connection** for model downloads (no API keys required)
 
 ### Installation
 
@@ -88,12 +98,12 @@ Audio Input → Audio Transcriber → Concept Extractor → Summary Generator �
 
 ```python
 # API Configuration
-OPENAI_API_KEY = "your-openai-api-key"  # Required for GPT models
+OPENAI_API_KEY = "your-openai-api-key"  # Required for GPT models (optional for local-only processing)
 HUGGINGFACE_TOKEN = "your-hf-token"     # Optional, for private models
 
 # Model Paths and Settings
 WHISPER_MODEL = "base"                   # Options: tiny, base, small, medium, large
-CONCEPT_MODEL_PATH = "google/flan-t5-small"
+BASE_MODEL_NAME = "google/flan-t5-base" # Open-source concept extraction model
 SUMMARY_MODEL = "gpt-3.5-turbo"         # or "gpt-4", "gpt-4-turbo"
 
 # Fine-tuning Paths

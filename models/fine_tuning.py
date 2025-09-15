@@ -8,11 +8,11 @@ import json
 import os
 from datasets import Dataset
 from transformers import (
-    AutoModelForCausalLM, 
+    AutoModelForSeq2SeqLM,  # Changed to Seq2Seq for T5
     AutoTokenizer, 
-    TrainingArguments, 
-    Trainer,
-    DataCollatorForLanguageModeling
+    Seq2SeqTrainingArguments,  # Changed for Seq2Seq training
+    Seq2SeqTrainer,  # Changed for Seq2Seq training
+    DataCollatorForSeq2Seq  # Changed for T5
 )
 from peft import LoraConfig, get_peft_model, TaskType
 from typing import Dict, List, Any
@@ -134,8 +134,8 @@ class FineTuningPipeline:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model
-            self.model = AutoModelForCausalLM.from_pretrained(
+            # Load model for Seq2Seq (T5)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(
                 config.BASE_MODEL_NAME,
                 torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
                 device_map="auto" if torch.cuda.is_available() else None,
@@ -228,7 +228,7 @@ class FineTuningPipeline:
         train_dataset = self.prepare_dataset(training_examples)
         
         # Training arguments (optimized for CPU)
-        training_args = TrainingArguments(
+        training_args = Seq2SeqTrainingArguments(
             output_dir=config.MODEL_SAVE_PATH,
             num_train_epochs=1,  # Reduced for faster training
             per_device_train_batch_size=1,  # Smaller batch size for CPU
@@ -246,15 +246,15 @@ class FineTuningPipeline:
             fp16=False,  # Disable mixed precision for CPU
         )
         
-        # Data collator with padding
-        data_collator = DataCollatorForLanguageModeling(
+        # Data collator for sequence-to-sequence tasks
+        data_collator = DataCollatorForSeq2Seq(
             tokenizer=self.tokenizer,
-            mlm=False,  # Causal language modeling, not masked
+            model=self.model,
             pad_to_multiple_of=8,  # Pad to multiple of 8 for efficiency
         )
         
         # Initialize trainer
-        trainer = Trainer(
+        trainer = Seq2SeqTrainer(
             model=self.peft_model,
             args=training_args,
             train_dataset=train_dataset,
@@ -285,7 +285,7 @@ class FineTuningPipeline:
             self.tokenizer = AutoTokenizer.from_pretrained(config.MODEL_SAVE_PATH)
             
             # Load base model
-            base_model = AutoModelForCausalLM.from_pretrained(
+            base_model = AutoModelForSeq2SeqLM.from_pretrained(
                 config.BASE_MODEL_NAME,
                 torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
                 device_map="auto" if torch.cuda.is_available() else None
@@ -321,7 +321,7 @@ class FineTunedConceptModel:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             
             # Load base model
-            base_model = AutoModelForCausalLM.from_pretrained(
+            base_model = AutoModelForSeq2SeqLM.from_pretrained(
                 config.BASE_MODEL_NAME,
                 torch_dtype=torch.float32,  # Use float32 for CPU
                 device_map=None

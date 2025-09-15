@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture Summarizer & Note Enhancer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+        }
+        .feature-card {
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .upload-area {
+            border: 3px dashed #007bff;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+            color: #333; /* Dark text for visibility */
+        }
+        .upload-area h5 {
+            color: #333; /* Ensure heading is visible */
+            font-weight: 600;
+        }
+        .upload-area:hover {
+            border-color: #0056b3;
+            background-color: #e9ecef;
+            color: #333; /* Keep text dark on hover */
+        }
+        .upload-area.dragover {
+            border-color: #28a745;
+            background-color: #d4edda;
+            color: #333; /* Keep text dark when dragging */
+        }
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+            color: #333; /* Dark text for progress text */
+        }
+        .progress-container #progressText {
+            color: #333; /* Ensure progress text is visible */
+            font-weight: 500;
+        }
+        .results-container {
+            display: none;
+            margin-top: 30px;
+        }
+        .concept-badge {
+            margin: 2px;
+        }
+        .summary-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .collapse-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap"></i> Lecture Summarizer
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-4 fw-bold">AI-Powered Lecture Summarizer & Note Enhancer</h1>
+                    <p class="lead">Transform your audio lectures into comprehensive study materials with advanced AI technology</p>
+                    <div class="mt-4">
+                        <span class="badge bg-light text-dark me-2"><i class="fas fa-check"></i> Audio Transcription</span>
+                        <span class="badge bg-light text-dark me-2"><i class="fas fa-check"></i> Concept Extraction</span>
+                        <span class="badge bg-light text-dark me-2"><i class="fas fa-check"></i> Study Notes</span>
+                        <span class="badge bg-light text-dark me-2"><i class="fas fa-check"></i> Flash Cards</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-upload text-primary"></i> Upload Your Lecture
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="uploadForm" enctype="multipart/form-data">
+                                <div class="upload-area" id="uploadArea">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <h5>Drag & Drop your audio file here</h5>
+                                    <p class="text-muted">or click to select a file</p>
+                                    <input type="file" id="audioFile" name="audio_file" accept=".wav,.mp3,.m4a,.flac,.ogg" style="display: none;">
+                                    <button type="button" class="btn btn-outline-primary" id="selectFileBtn">
+                                        Select File
+                                    </button>
+                                    <div class="mt-3">
+                                        <small class="text-muted">
+                                            Supported formats: WAV, MP3, M4A, FLAC, OGG (Max 100MB)
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div id="fileInfo" style="display: none;" class="mt-3">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-file-audio"></i>
+                                        <span id="fileName"></span>
+                                        <span id="fileSize" class="text-muted"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-container" id="progressContainer">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <span id="progressText">Processing...</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary btn-lg" id="processBtn" disabled>
+                                    <i class="fas fa-magic"></i> Process Lecture
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-container" id="resultsContainer">
+        <div class="container mt-5">
+            <!-- Lecture Summary (Full Width) -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-file-text"></i> Lecture Summary
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="summaryContent">
+                                <!-- Summary will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Study Notes (Full Width Below Summary) -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-book"></i> Study Notes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="studyNotesContainer">
+                                <!-- Study notes will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Processing Information (Full Width Below Study Notes) -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Processing Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="processingInfo">
+                                <!-- Processing info will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-12 mb-5">
+                    <h2 class="fw-bold">Why Choose Our Lecture Summarizer?</h2>
+                    <p class="text-muted">Advanced AI technology to enhance your learning experience</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">AI-Powered Analysis</h5>
+                            <p class="card-text">Fine-tuned models for academic content understanding and concept extraction</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-clock fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Real-time Processing</h5>
+                            <p class="card-text">Fast processing with quality gates ensuring accurate results</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-graduation-cap fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Study-Ready Notes</h5>
+                            <p class="card-text">Structured summaries, key concepts, and study materials generated automatically</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4">
+        <div class="container">
+            <p>&copy; 2024 Lecture Summarizer & Note Enhancer. Built with AI for students.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script>
+        // Initialize Socket.IO and variables at global scope
+        const socket = io();
+        let currentSessionId = null;
+        
+        // DOM ready - Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Initializing app');
+            
+            // Get all DOM elements
+            const uploadArea = document.getElementById('uploadArea');
+            const audioFile = document.getElementById('audioFile');
+            const uploadForm = document.getElementById('uploadForm');
+            const processBtn = document.getElementById('processBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressText = document.getElementById('progressText');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const selectBtn = document.getElementById('selectFileBtn');
+
+            // Verify all elements exist
+            if (!uploadArea || !audioFile || !selectBtn) {
+                console.error('Critical DOM elements not found!');
+                alert('Page initialization failed - missing elements!');
+                return;
+            }
+
+            console.log('All DOM elements found successfully');
+
+            // Socket event handlers
+            socket.on('connect', () => {
+                console.log('Connected to server');
+            });
+            
+            socket.on('progress_update', (data) => {
+                console.log('Received progress update:', data);
+                updateProgressBar(data.progress, data.message);
+            });
+            
+            socket.on('processing_complete', (result) => {
+                console.log('Received processing_complete:', result);
+                progressContainer.style.display = 'none';
+                processBtn.disabled = false;
+                
+                if (result && result.success) {
+                    displayResults(result);
+                } else {
+                    console.error('Invalid result received:', result);
+                    alert('Processing completed but results are invalid');
+                }
+            });
+            
+            socket.on('processing_error', (data) => {
+                console.error('Processing error:', data);
+                progressContainer.style.display = 'none';
+                processBtn.disabled = false;
+                alert('Processing failed: ' + data.error);
+            });
+            
+            socket.on('session_joined', (data) => {
+                console.log('Session joined successfully:', data);
+            });
+
+            // File selection button click handler
+            selectBtn.addEventListener('click', function(e) {
+                console.log('Select File button clicked');
+                e.preventDefault();
+                e.stopPropagation();
+                audioFile.click();
+                console.log('File input triggered');
+            });
+
+            // Upload area click handler (but not for the button)
+            uploadArea.addEventListener('click', (e) => {
+                console.log('Upload area clicked, target:', e.target.id);
+                if (e.target.id !== 'selectFileBtn' && !e.target.closest('#selectFileBtn')) {
+                    audioFile.click();
+                    console.log('File input triggered from upload area');
+                }
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    audioFile.files = files;
+                    handleFileSelect();
+                }
+            });
+
+            // File input change handler
+            audioFile.addEventListener('change', handleFileSelect);
+
+            // Form submission handler
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const file = audioFile.files[0];
+                if (!file) {
+                    alert('Please select an audio file');
+                    return;
+                }
+
+                // Generate session ID and show progress
+                currentSessionId = 'session_' + Date.now();
+                
+                // Join the session via WebSocket
+                socket.emit('join_session', { session_id: currentSessionId });
+                
+                progressContainer.style.display = 'block';
+                processBtn.disabled = true;
+                resultsContainer.style.display = 'none';
+                
+                // Reset progress bar
+                const progressBar = document.querySelector('.progress-bar');
+                progressBar.style.width = '0%';
+                progressBar.classList.add('progress-bar-animated');
+                progressBar.classList.remove('bg-danger', 'bg-success');
+                updateProgressBar(0, 'Uploading file...');
+
+                const formData = new FormData();
+                formData.append('audio_file', file);
+                formData.append('session_id', currentSessionId);
+
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.error || 'Upload failed');
+                    }
+                    
+                    updateProgressBar(5, 'File uploaded, starting processing...');
+                    
+                } catch (error) {
+                    progressContainer.style.display = 'none';
+                    processBtn.disabled = false;
+                    alert('Upload failed: ' + error.message);
+                }
+            });
+
+            // Helper functions
+            function handleFileSelect() {
+                const file = audioFile.files[0];
+                if (file) {
+                    console.log('File selected:', file.name);
+                    fileName.textContent = file.name;
+                    fileSize.textContent = `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+                    fileInfo.style.display = 'block';
+                    processBtn.disabled = false;
+                }
+            }
+
+            function updateProgressBar(progress, message) {
+                const progressBar = document.querySelector('.progress-bar');
+                const progressText = document.getElementById('progressText');
+                const progressContainer = document.getElementById('progressContainer');
+                
+                console.log(`Updating progress: ${progress}% - ${message}`);
+                
+                // Ensure progress container is visible
+                if (progressContainer) {
+                    progressContainer.style.display = 'block';
+                }
+                
+                if (progress < 0) {
+                    // Error state
+                    progressBar.style.width = '100%';
+                    progressBar.classList.remove('progress-bar-animated');
+                    progressBar.classList.add('bg-danger');
+                    progressText.textContent = message;
+                } else {
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = message + ` (${Math.round(progress)}%)`;
+                    
+                    if (progress >= 100) {
+                        progressBar.classList.remove('progress-bar-animated');
+                        progressBar.classList.add('bg-success');
+                    }
+                }
+            }
+
+            function displayResults(result) {
+                // Check if we have the required elements
+                const summaryContent = document.getElementById('summaryContent');
+                const processingInfo = document.getElementById('processingInfo');
+                const studyNotesContainer = document.getElementById('studyNotesContainer');
+                const resultsContainer = document.getElementById('resultsContainer');
+                
+                if (!summaryContent || !processingInfo || !studyNotesContainer || !resultsContainer) {
+                    console.error('Required DOM elements not found!');
+                    alert('Error: Cannot display results - missing page elements');
+                    return;
+                }
+                
+                // Display summary with Markdown rendering
+                const summaryText = result.summary || 'No summary available';
+                summaryContent.innerHTML = marked.parse(summaryText);
+
+                // Enhanced processing info with orchestrator details
+                let processingHTML = `
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Processing Time:</strong> ${result.processing_time.toFixed(2)}s</p>
+                            <p><strong>Quality Score:</strong> ${(result.quality_score * 100).toFixed(1)}%</p>
+                            <p><strong>Word Count:</strong> ${result.transcription.split(' ').length}</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h6><i class="fas fa-cogs"></i> Processing Stages</h6>
+                `;
+                
+                // Add stage durations if available
+                if (result.stage_durations) {
+                    const stages = {
+                        'transcription': '🎤 Audio Transcription',
+                        'concept_extraction': '🧠 Concept Extraction', 
+                        'rag_enhancement': '📚 Knowledge Enhancement',
+                        'summary_generation': '📝 Summary Generation'
+                    };
+                    
+                    for (const [stageKey, stageName] of Object.entries(stages)) {
+                        const duration = result.stage_durations[stageKey];
+                        if (duration !== undefined) {
+                            processingHTML += `
+                                <div class="small text-muted">
+                                    ${stageName}: ${duration.toFixed(2)}s
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                
+                // Add agent performance if available
+                if (result.agent_performance) {
+                    processingHTML += `<br><h6><i class="fas fa-robot"></i> Agent Status</h6>`;
+                    for (const [agent, status] of Object.entries(result.agent_performance)) {
+                        let statusText, statusIcon, qualityScore;
+                        
+                        if (typeof status === 'object' && status !== null) {
+                            // Try multiple possible status fields
+                            statusText = status.status || status.state || status.name || 'active';
+                            qualityScore = status.quality_score || status.output_quality || 0;
+                            
+                            // Determine icon based on status and quality
+                            if (statusText === 'active' && qualityScore > 0) {
+                                statusIcon = '✅';
+                                statusText = `active (${(qualityScore * 100).toFixed(0)}% quality)`;
+                            } else if (statusText === 'ready') {
+                                statusIcon = '✅';
+                            } else if (statusText === 'unknown' || statusText === 'not_found') {
+                                statusIcon = '⚠️';
+                            } else {
+                                statusIcon = '🔄';
+                            }
+                        } else {
+                            statusText = String(status);
+                            statusIcon = statusText === 'ready' ? '✅' : '⚠️';
+                        }
+                        
+                        processingHTML += `
+                            <div class="small text-muted">
+                                ${statusIcon} ${agent.replace('_', ' ')}: ${statusText}
+                            </div>
+                        `;
+                    }
+                }
+                
+                processingHTML += `
+                        </div>
+                    </div>
+                `;
+                
+                processingInfo.innerHTML = processingHTML;
+
+                // Display detailed study notes
+                const flashcards = result.flashcards || [];
+                const questions = result.questions || [];
+                const keyTerms = result.key_terms || [];
+                const definitions = result.definitions || [];
+                
+                // Count the generated items
+                const flashCardsCount = flashcards.length;
+                const practiceQuestionsCount = questions.length;
+                const keyTermsCount = keyTerms.length;
+                const definitionsCount = definitions.length;
+                
+                let studyNotesHTML = '';
+                
+                // Add expandable sections for each type of content
+                if (flashCardsCount > 0) {
+                    studyNotesHTML += `
+                        <div class="mb-2">
+                            <button class="btn btn-sm btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#flashCardsCollapse">
+                                <i class="fas fa-credit-card"></i> View Flash Cards (${flashCardsCount})
+                            </button>
+                            <div class="collapse mt-2" id="flashCardsCollapse">
+                                <div class="card card-body collapse-content">
+                                    ${flashcards.map((card, index) => {
+                                        if (typeof card === 'string') {
+                                            return `
+                                                <div class="border rounded p-2 mb-2">
+                                                    <strong>Q${index + 1}:</strong> ${card}<br>
+                                                    <strong>A:</strong> Answer not provided
+                                                </div>
+                                            `;
+                                        } else if (typeof card === 'object' && card !== null) {
+                                            const question = card.question || card.front || card.q || JSON.stringify(card);
+                                            const answer = card.answer || card.back || card.a || 'Answer not provided';
+                                            return `
+                                                <div class="border rounded p-2 mb-2">
+                                                    <strong>Q${index + 1}:</strong> ${question}<br>
+                                                    <strong>A:</strong> ${answer}
+                                                </div>
+                                            `;
+                                        } else {
+                                            return `
+                                                <div class="border rounded p-2 mb-2">
+                                                    <strong>Q${index + 1}:</strong> ${String(card)}<br>
+                                                    <strong>A:</strong> Answer not provided
+                                                </div>
+                                            `;
+                                        }
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (practiceQuestionsCount > 0) {
+                    studyNotesHTML += `
+                        <div class="mb-2">
+                            <button class="btn btn-sm btn-outline-success w-100" type="button" data-bs-toggle="collapse" data-bs-target="#questionsCollapse">
+                                <i class="fas fa-question-circle"></i> View Practice Questions (${practiceQuestionsCount})
+                            </button>
+                            <div class="collapse mt-2" id="questionsCollapse">
+                                <div class="card card-body collapse-content">
+                                    ${questions.map((q, index) => {
+                                        let questionText;
+                                        if (typeof q === 'string') {
+                                            questionText = q;
+                                        } else if (typeof q === 'object' && q !== null) {
+                                            questionText = q.question || q.text || q.q || JSON.stringify(q);
+                                        } else {
+                                            questionText = String(q);
+                                        }
+                                        return `
+                                            <div class="border rounded p-2 mb-2">
+                                                <strong>Q${index + 1}:</strong> ${questionText}
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (keyTermsCount > 0) {
+                    studyNotesHTML += `
+                        <div class="mb-2">
+                            <button class="btn btn-sm btn-outline-warning w-100" type="button" data-bs-toggle="collapse" data-bs-target="#keyTermsCollapse">
+                                <i class="fas fa-key"></i> View Key Terms (${keyTermsCount})
+                            </button>
+                            <div class="collapse mt-2" id="keyTermsCollapse">
+                                <div class="card card-body collapse-content">
+                                    ${keyTerms.map(term => {
+                                        const termText = typeof term === 'string' ? term : 
+                                                        (typeof term === 'object' && term !== null ? 
+                                                         (term.term || term.text || term.name || JSON.stringify(term)) : 
+                                                         String(term));
+                                        return `<span class="badge bg-warning text-dark m-1">${termText}</span>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (definitionsCount > 0) {
+                    studyNotesHTML += `
+                        <div class="mb-2">
+                            <button class="btn btn-sm btn-outline-info w-100" type="button" data-bs-toggle="collapse" data-bs-target="#definitionsCollapse">
+                                <i class="fas fa-book-open"></i> View Definitions (${definitionsCount})
+                            </button>
+                            <div class="collapse mt-2" id="definitionsCollapse">
+                                <div class="card card-body collapse-content">
+                                    ${definitions.map((def, index) => {
+                                        if (typeof def === 'string') {
+                                            return `
+                                                <div class="border rounded p-2 mb-2">
+                                                    <strong>Term ${index + 1}:</strong> ${def}
+                                                </div>
+                                            `;
+                                        } else if (typeof def === 'object' && def !== null) {
+                                            const term = def.term || def.key || def.name || `Term ${index + 1}`;
+                                            const definition = def.definition || def.value || def.desc || JSON.stringify(def);
+                                            return `
+                                                <div class="border rounded p-2 mb-2">
+                                                    <strong>${term}:</strong> ${definition}
+                                                </div>
+                                            `;
+                                        } else {
+                                            return `
+                                                <div class="border rounded p-2 mb-2">
+                                                    <strong>Definition ${index + 1}:</strong> ${String(def)}
+                                                </div>
+                                            `;
+                                        }
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                studyNotesContainer.innerHTML = studyNotesHTML;
+
+                // Show results container
+                resultsContainer.style.display = 'block';
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            console.log('JavaScript initialization complete');
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>

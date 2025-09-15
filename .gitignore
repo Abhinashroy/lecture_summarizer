@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Model files (too large for git)
+models/fine_tuned/
+*.bin
+*.safetensors
+
+# Data files
+data/vector_store/
+data/training_data.json
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.flac
+
+# Logs
+*.log
+logs/
+
+# Test files
+test_*.py
+
+# Outputs
+outputs/
+temp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Lecture Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .demo-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+        }
+        .sample-text {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sample-text:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap"></i> Lecture Summarizer
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/status">Status</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Demo Header -->
+    <section class="demo-section">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-4">
+                <i class="fas fa-flask"></i> Try the Demo
+            </h1>
+            <p class="lead">
+                Test the lecture summarizer with sample text or paste your own lecture transcript
+            </p>
+        </div>
+    </section>
+
+    <!-- Demo Content -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-keyboard"></i> Input Text
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="demoForm">
+                            <div class="mb-3">
+                                <label for="lectureText" class="form-label">Lecture Transcript:</label>
+                                <textarea class="form-control" id="lectureText" rows="10" 
+                                    placeholder="Paste your lecture transcript here or select a sample below..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" id="analyzeBtn">
+                                    <i class="fas fa-cogs"></i> Analyze Text
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4">
+                            <h6>Sample Lecture Texts:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="sample-text" onclick="loadSample('math')">
+                                        <strong>Mathematics - Calculus</strong>
+                                        <small class="d-block text-muted">Derivatives and integration concepts</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="sample-text" onclick="loadSample('cs')">
+                                        <strong>Computer Science - Algorithms</strong>
+                                        <small class="d-block text-muted">Time complexity and data structures</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="sample-text" onclick="loadSample('physics')">
+                                        <strong>Physics - Mechanics</strong>
+                                        <small class="d-block text-muted">Newton's laws and motion</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="sample-text" onclick="loadSample('biology')">
+                                        <strong>Biology - Cell Structure</strong>
+                                        <small class="d-block text-muted">DNA and cellular processes</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle"></i> How It Works
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ol>
+                            <li class="mb-2">
+                                <strong>Text Analysis:</strong> AI analyzes the lecture content
+                            </li>
+                            <li class="mb-2">
+                                <strong>Concept Extraction:</strong> Identifies key terms and definitions
+                            </li>
+                            <li class="mb-2">
+                                <strong>Summary Generation:</strong> Creates structured notes
+                            </li>
+                            <li class="mb-2">
+                                <strong>Study Materials:</strong> Generates flashcards and questions
+                            </li>
+                        </ol>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <small>
+                                <i class="fas fa-lightbulb"></i> 
+                                This demo processes text directly. For audio files, use the main upload feature.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="card-title mb-0">
+                                <i class="fas fa-magic"></i> Analysis Results
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Tab Navigation -->
+                            <ul class="nav nav-tabs" id="resultsTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#summary" type="button" role="tab">
+                                        <i class="fas fa-file-alt"></i> Summary
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="concepts-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#concepts" type="button" role="tab">
+                                        <i class="fas fa-lightbulb"></i> Concepts
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="definitions-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#definitions" type="button" role="tab">
+                                        <i class="fas fa-book"></i> Definitions
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="study-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#study" type="button" role="tab">
+                                        <i class="fas fa-graduation-cap"></i> Study Notes
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <!-- Tab Content -->
+                            <div class="tab-content mt-3" id="resultsTabContent">
+                                <div class="tab-pane fade show active" id="summary" role="tabpanel">
+                                    <div id="summaryContent"></div>
+                                </div>
+                                <div class="tab-pane fade" id="concepts" role="tabpanel">
+                                    <div id="conceptsContent"></div>
+                                </div>
+                                <div class="tab-pane fade" id="definitions" role="tabpanel">
+                                    <div id="definitionsContent"></div>
+                                </div>
+                                <div class="tab-pane fade" id="study" role="tabpanel">
+                                    <div id="studyContent"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sampleTexts = {
+            math: `Today we'll discuss derivatives in calculus. A derivative measures the rate of change of a function with respect to its variable. For example, if we have a function f(x) = x², the derivative f'(x) = 2x. This tells us how the function is changing at any given point.
+
+The power rule is fundamental: for f(x) = x^n, the derivative is f'(x) = nx^(n-1). We also have the chain rule for composite functions, which states that the derivative of f(g(x)) is f'(g(x)) * g'(x).
+
+Integration is the reverse process of differentiation. The integral of 2x is x² + C, where C is the constant of integration. This relationship between differentiation and integration is fundamental to calculus.`,
+
+            cs: `Algorithm analysis is crucial in computer science. We measure algorithm efficiency using Big O notation, which describes the upper bound of time complexity. For example, a linear search has O(n) complexity, meaning the time grows linearly with input size.
+
+Binary search is more efficient with O(log n) complexity, but it requires a sorted array. The algorithm works by repeatedly dividing the search space in half. Data structures like binary trees and hash tables enable efficient algorithms.
+
+Recursion is a powerful programming technique where a function calls itself. Every recursive algorithm needs a base case to prevent infinite recursion and a recursive case that reduces the problem size.`,
+
+            physics: `Newton's laws of motion form the foundation of classical mechanics. The first law states that objects at rest stay at rest, and objects in motion stay in motion, unless acted upon by an external force. This is also known as the law of inertia.
+
+The second law quantifies force: F = ma, where force equals mass times acceleration. This equation tells us that acceleration is proportional to the net force and inversely proportional to mass.
+
+The third law states that for every action, there is an equal and opposite reaction. When you push against a wall, the wall pushes back with equal force. Conservation of momentum follows from this principle.`,
+
+            biology: `DNA is the blueprint of life, containing genetic information in all living organisms. The structure is a double helix composed of four nucleotide bases: adenine (A), thymine (T), guanine (G), and cytosine (C). Base pairing rules dictate that A pairs with T and G pairs with C.
+
+The cell is the basic unit of life. Prokaryotic cells lack a nucleus, while eukaryotic cells have a membrane-bound nucleus containing DNA. Mitochondria are the powerhouses of the cell, generating ATP through cellular respiration.
+
+Photosynthesis converts light energy into chemical energy in plants. Chloroplasts contain chlorophyll, which captures light energy. The process produces glucose and oxygen from carbon dioxide and water.`
+        };
+
+        function loadSample(type) {
+            document.getElementById('lectureText').value = sampleTexts[type];
+        }
+
+        document.getElementById('demoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('lectureText').value.trim();
+            if (!text) {
+                alert('Please enter or select some lecture text');
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+            try {
+                const response = await fetch('/demo/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayDemoResults(result);
+                } else {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-cogs"></i> Analyze Text';
+            }
+        });
+
+        function displayDemoResults(result) {
+            // Summary Tab
+            const summaryContent = document.getElementById('summaryContent');
+            summaryContent.innerHTML = `<pre class="bg-light p-3 rounded">${result.summary}</pre>`;
+
+            // Concepts Tab
+            const conceptsContent = document.getElementById('conceptsContent');
+            const conceptsHtml = result.concepts.map(concept => 
+                `<div class="card mb-2">
+                    <div class="card-body">
+                        <h6 class="card-title">${concept.text}</h6>
+                        <small class="text-muted">Type: ${concept.type} | Importance: ${(concept.importance * 100).toFixed(0)}%</small>
+                    </div>
+                </div>`
+            ).join('');
+            conceptsContent.innerHTML = conceptsHtml || '<p class="text-muted">No concepts extracted</p>';
+
+            // Definitions Tab
+            const definitionsContent = document.getElementById('definitionsContent');
+            const definitionsHtml = result.definitions.map(def => 
+                `<div class="card mb-2">
+                    <div class="card-body">
+                        <h6 class="card-title">${def.term}</h6>
+                        <p class="card-text">${def.definition}</p>
+                    </div>
+                </div>`
+            ).join('');
+            definitionsContent.innerHTML = definitionsHtml || '<p class="text-muted">No definitions found</p>';
+
+            // Study Notes Tab
+            const studyContent = document.getElementById('studyContent');
+            const studyNotes = result.study_notes;
+            const flashCards = studyNotes.flash_cards || [];
+            const practiceQuestions = studyNotes.practice_questions || [];
+            
+            studyContent.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cards-blank"></i> Flash Cards (${flashCards.length})</h6>
+                        ${flashCards.map(card => 
+                            `<div class="card mb-2">
+                                <div class="card-body">
+                                    <strong>Q:</strong> ${card.front}<br>
+                                    <strong>A:</strong> ${card.back}
+                                </div>
+                            </div>`
+                        ).join('')}
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-question-circle"></i> Practice Questions (${practiceQuestions.length})</h6>
+                        ${practiceQuestions.map((q, i) => 
+                            `<div class="card mb-2">
+                                <div class="card-body">
+                                    <strong>${i + 1}.</strong> ${q}
+                                </div>
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Show results
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

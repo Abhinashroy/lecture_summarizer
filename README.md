@@ -58,7 +58,7 @@ Audio Input → Audio Transcriber → Concept Extractor → Summary Generator �
 
 1. **Clone and navigate to the project**:
    ```bash
-   git clone <your-repository-url>
+   git clone https://github.com/Abhinashroy/lecture_summarizer.git
    cd lecture_summarizer
    ```
 

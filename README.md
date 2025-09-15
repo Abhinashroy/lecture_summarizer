@@ -2,6 +2,46 @@
 
 > **🤖 AI Agent Prototype** - A sophisticated multi-agent AI system that transforms audio lectures into comprehensive study materials using fine-tuned language models, retrieval-augmented generation (RAG), and real-time web interface.
 
+## 👨‍💻 Author
+
+**Abhinash Roy**  
+📍 **University:** Indian Institute of Technology Jodhpur (IIT Jodhpur)  
+🎓 **Department:** Computer Science and Engineering (CS)  
+🔬 **Project Type:** AI Agent Prototype for Academic Content Processing
+
+## 🎬 Demo Video
+
+Watch the AI Lecture Summarizer in action:
+
+### 📹 Demo: Complete Workflow
+
+🎥 **[Watch Demo Video on Google Drive](https://drive.google.com/file/d/1plYGH-iH_Upn3Nfym6Pumzm-57W6SXo4/view?usp=sharing)**
+
+The demo video showcases:
+- 🎵 **Audio Upload**: Uploading lecture recordings through web interface
+- 🔄 **Real-time Processing**: Live progress updates through WebSocket
+- 🎯 **Multi-Agent Workflow**: Audio transcription → Concept extraction → Summary generation
+- 📊 **Results Display**: Structured summaries, concept definitions, and study notes
+
+### 🚀 Quick Preview
+The system processes a 10-minute lecture in approximately 2-3 minutes, generating:
+- Complete transcript with timestamps
+- Key concepts and definitions
+- Structured summary sections
+- Study notes and main points
+
+## 📚 Table of Contents
+
+- [👨‍💻 Author](#-author)
+- [🎬 Demo Video](#-demo-video)
+- [🎯 Overview](#-overview)
+- [🏗️ Architecture](#️-architecture)
+- [✨ Key Features](#-key-features)
+- [🚀 Quick Start](#-quick-start)
+- [⚙️ Configuration](#️-configuration-and-parameter-tweaking)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [🙏 Acknowledgments](#-acknowledgments)
+
 ## 🎯 Overview
 
 This **AI agent prototype** processes audio lectures through a pipeline of specialized AI agents to generate:
@@ -10,7 +50,6 @@ This **AI agent prototype** processes audio lectures through a pipeline of speci
 - **Structured summaries** in multiple formats
 - **Study notes** with concept definitions and explanations
 - **Interactive web interface** with real-time progress tracking
-
 ## 🏗️ Architecture
 
 The system uses a **multi-agent architecture** with four specialized agents:
